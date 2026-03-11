@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电子宠物 - 小狗（增强版）</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+        }
+        
+        h1 {
+            color: #2d3436;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        .pet-container {
+            position: relative;
+            margin: 20px 0;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .dog {
+            width: 150px;
+            height: 150px;
+            background: #f1c40f;
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            transform-origin: center;
+        }
+        
+        /* 狗狗的耳朵 */
+        .ear {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: #f1c40f;
+            border-radius: 50%;
+            top: -10px;
+            transition: all 0.3s ease;
+        }
+        
+        .ear.left {
+            left: 10px;
+        }
+        
+        .ear.right {
+            right: 10px;
+        }
+        
+        /* 眼睛 */
+        .eye {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: #2d3436;
+            border-radius: 50%;
+            top: 40px;
+            transition: all 0.2s ease;
+        }
+        
+        .eye.left {
+            left: 35px;
+        }
+        
+        .eye.right {
+            right: 35px;
+        }
+        
+        /* 眼睛高光 */
+        .eye::before {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            top: 8px;
+            left: 8px;
+        }
+        
+        /* 鼻子 */
+        .nose {
+            position: absolute;
+            width: 15px;
+            height: 10px;
+            background: #e17055;
+            border-radius: 50%;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        /* 嘴巴 */
+        .mouth {
+            position: absolute;
+            width: 40px;
+            height: 20px;
+            border-bottom: 3px solid #2d3436;
+            border-radius: 0 0 50% 50%;
+            top: 85px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: all 0.3s ease;
+        }
+        
+        /* 舌头（吃东西时显示） */
+        .tongue {
+            position: absolute;
+            width: 25px;
+            height: 15px;
+            background: #ff7675;
+            border-radius: 50%;
+            top: 95px;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            transition: all 0.3s ease;
+        }
+        
+        /* 尾巴 */
+        .tail {
+            position: absolute;
+            width: 8px;
+            height: 40px;
+            background: #f1c40f;
+            border-radius: 10px;
+            right: -15px;
+            top: 60px;
+            transform-origin: top center;
+            animation: wagTail 2s infinite ease-in-out;
+        }
+        
+        /* 动画效果 */
+        @keyframes wagTail {
+            0%, 100% { transform: rotate(-20deg); }
+            50% { transform: rotate(20deg); }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        @keyframes blink {
+            0%, 45%, 55%, 100% { height: 30px; }
+            47.5%, 52.5% { height: 3px; }
+        }
+        
+        /* 状态样式 */
+        .dog.happy {
+            animation: bounce 0.6s ease;
+        }
+        
+        .dog.excited {
+            animation: spin 1s ease-in-out;
+        }
+        
+        .dog.playful {
+            animation: shake 0.5s ease;
+        }
+        
+        .eye.blink {
+            animation: blink 3s infinite;
+        }
+        
+        .dog.eating .tongue {
+            transform: translateX(-50%) scale(1);
+        }
+        
+        .dog.eating .mouth {
+            border-bottom: none;
+            border-radius: 50%;
+        }
+        
+        .stats {
+            margin: 20px 0;
+        }
+        
+        .stat-bar {
+            background: #ecf0f1;
+            border-radius: 10px;
+            height: 25px;
+            margin: 10px 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .stat-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .life-bar {
+            background: linear-gradient(90deg, #e74c3c, #2ecc71);
+        }
+        
+        .happy-bar {
+            background: linear-gradient(90deg, #e74c3c, #f1c40f);
+        }
+        
+        .stat-label {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-weight: bold;
+            color: #2d3436;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: #0984e3;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            min-width: 100px;
+        }
+        
+        button:hover {
+            background: #74b9ff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .message {
+            margin-top: 15px;
+            font-style: italic;
+            color: #636e72;
+            min-height: 20px;
+            font-size: 16px;
+        }
+        
+        /* 心形和骨头特效 */
+        .effect {
+            position: absolute;
+            font-size: 24px;
+            animation: floatUp 2s forwards;
+            z-index: 10;
+        }
+        
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100px) scale(0.5); opacity: 0; }
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .dog {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .buttons {
+                gap: 10px;
+            }
+            
+            button {
+                padding: 10px 15px;
+                font-size: 14px;
+                min-width: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐕 我的电子宠物小狗 🐕</h1>
+        
+        <div class="pet-container" id="petContainer">
+            <div class="dog" id="dog">
+                <div class="ear left"></div>
+                <div class="ear right"></div>
+                <div class="eye left eye-blink"></div>
+                <div class="eye right eye-blink"></div>
+                <div class="nose"></div>
+                <div class="mouth"></div>
+                <div class="tongue"></div>
+                <div class="tail"></div>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-label">
+                <span>❤️ 生命值</span>
+                <span id="life-value">100%</span>
+            </div>
+            <div class="stat-bar">
+                <div class="stat-fill life-bar" id="life-bar" style="width: 100%;"></div>
+            </div>
+            
+            <div class="stat-label">
+                <span>😊 开心值</span>
+                <span id="happy-value">100%</span>
+            </div>
+            <div class="stat-bar">
+                <div class="stat-fill happy-bar" id="happy-bar" style="width: 100%;"></div>
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <button onclick="feedPet()">🍖 喂养</button>
+            <button onclick="playWithPet()">🎾 玩耍</button>
+            <button onclick="petDog()">🤗 摸摸</button>
+            <button onclick="makeTrick()">🎪 表演</button>
+        </div>
+        
+        <div class="message" id="message">欢迎来到电子宠物世界！点击小狗或按钮与它互动吧！</div>
+    </div>
+
+    <script>
+        let life = 100;
+        let happy = 100;
+        let isDecaying = true;
+        let lastBlink = Date.now();
+        
+        const dog = document.getElementById('dog');
+        const petContainer = document.getElementById('petContainer');
+        
+        function updateStats() {
+            document.getElementById('life-bar').style.width = life + '%';
+            document.getElementById('happy-bar').style.width = happy + '%';
+            document.getElementById('life-value').textContent = Math.round(life) + '%';
+            document.getElementById('happy-value').textContent = Math.round(happy) + '%';
+            
+            // 检查游戏结束条件
+            if (life <= 0) {
+                showMessage('😢 小狗的生命值耗尽了...刷新页面重新开始吧！');
+                isDecaying = false;
+                dog.style.opacity = '0.5';
+            } else if (happy <= 0) {
+                showMessage('😞 小狗太不开心了，不想理你了...');
+                isDecaying = false;
+                dog.style.opacity = '0.5';
+            }
+        }
+        
+        function showMessage(msg) {
+            document.getElementById('message').textContent = msg;
+        }
+        
+        function createEffect(emoji, x, y) {
+            const effect = document.createElement('div');
+            effect.className = 'effect';
+            effect.textContent = emoji;
+            effect.style.left = x + 'px';
+            effect.style.top = y + 'px';
+            petContainer.appendChild(effect);
+            
+            // 2秒后移除特效
+            setTimeout(() => {
+                effect.remove();
+            }, 2000);
+        }
+        
+        function animateDog(animationClass, duration = 600) {
+            dog.classList.add(animationClass);
+            setTimeout(() => {
+                dog.classList.remove(animationClass);
+            }, duration);
+        }
+        
+        function feedPet() {
+            if (life >= 100) {
+                showMessage('🐶 小狗已经吃饱啦！');
+                return;
+            }
+            
+            life = Math.min(100, life + 15);
+            happy = Math.min(100, happy + 5);
+            dog.classList.add('eating');
+            setTimeout(() => {
+                dog.classList.remove('eating');
+            }, 1000);
+            
+            const rect = dog.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            createEffect('🍖', x, y);
+            
+            showMessage('🍽️ 小狗吃得很开心！生命值+15，开心值+5');
+            updateStats();
+        }
+        
+        function playWithPet() {
+            if (happy >= 100) {
+                showMessage('🎉 小狗已经很开心啦！');
+                return;
+            }
+            
+            happy = Math.min(100, happy + 20);
+            life = Math.max(0, life - 5);
+            animateDog('playful');
+            
+            const rect = dog.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            createEffect('🎾', x, y);
+            
+            showMessage('🎾 小狗玩得好开心！开心值+20，但消耗了一些体力-5');
+            updateStats();
+        }
+        
+        function petDog() {
+            if (happy >= 100) {
+                showMessage('🥰 小狗已经被摸得很舒服啦！');
+                return;
+            }
+            
+            happy = Math.min(100, happy + 10);
+            animateDog('happy');
+            
+            const rect = dog.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            createEffect('❤️', x, y);
+            
+            showMessage('🤗 小狗被摸得很舒服！开心值+10');
+            updateStats();
+        }
+        
+        function makeTrick() {
+            if (happy < 20) {
+                showMessage('😔 小狗心情不好，不想表演...');
+                return;
+            }
+            
+            happy = Math.max(0, happy - 15);
+            life = Math.max(0, life - 10);
+            animateDog('excited', 1000);
+            
+            const rect = dog.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            createEffect('🎪', x, y);
+            
+            showMessage('🎪 小狗表演了一个绝技！开心值-15，体力-10');
+            updateStats();
+        }
+        
+        // 点击小狗也会有反应
+        dog.addEventListener('click', () => {
+            if (happy > 0 && life > 0) {
+                petDog();
+            }
+        });
+        
+        // 自然衰减
+        setInterval(() => {
+            if (!isDecaying) return;
+            
+            life = Math.max(0, life - 0.5);
+            happy = Math.max(0, happy - 0.3);
+            updateStats();
+            
+            // 随机行为
+            const randomAction = Math.random();
+            const rect = dog.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            
+            if (randomAction < 0.05 && life > 0 && happy > 0) {
+                // 随机摇尾巴更厉害
+                dog.style.animation = 'none';
+                setTimeout(() => {
+                    dog.style.animation = 'wagTail 1s infinite ease-in-out';
+                }, 10);
+            } else if (randomAction < 0.1 && life > 0 && happy > 0) {
+                // 随机眨眼
+                const eyes = document.querySelectorAll('.eye');
+                eyes.forEach(eye => {
+                    eye.style.animation = 'blink 0.5s';
+                    setTimeout(() => {
+                        eye.style.animation = 'blink 3s infinite';
+                    }, 500);
+                });
+            }
+            
+            // 随机消息
+            const messages = [
+                '🐶 小狗在打盹...',
+                '🐕 小狗摇着尾巴看着你',
+                '🐾 小狗想要你的关注',
+                '🦴 小狗在等待你的互动',
+                '👀 小狗好奇地看着你',
+                '💤 小狗有点困了...'
+            ];
+            
+            if (Math.random() < 0.08 && life > 0 && happy > 0) {
+                showMessage(messages[Math.floor(Math.random() * messages.length)]);
+            }
+        }, 2000);
+        
+        // 初始化
+        updateStats();
+        
+        // 让眼睛自动眨眼
+        setInterval(() => {
+            if (life > 0 && happy > 0) {
+                const eyes = document.querySelectorAll('.eye');
+                eyes.forEach(eye => {
+                    eye.style.animation = 'blink 0.5s';
+                    setTimeout(() => {
+                        eye.style.animation = 'blink 3s infinite';
+                    }, 500);
+                });
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
